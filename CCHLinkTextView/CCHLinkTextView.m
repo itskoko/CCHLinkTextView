@@ -37,6 +37,7 @@ NSString *const CCHLinkAttributeName = @"CCHLinkAttributeName";
 
 @property (nonatomic) CGPoint touchDownLocation;
 @property (nonatomic) CCHLinkGestureRecognizer *linkGestureRecognizer;
+@property (nonatomic) NSMutableAttributedString *origAttributedText;
 
 @end
 
@@ -119,18 +120,6 @@ NSString *const CCHLinkAttributeName = @"CCHLinkAttributeName";
 {
     _linkTextTouchAttributes = linkTextTouchAttributes;
     [self setAttributedText:self.attributedText];
-}
-
-- (void)setAttributedText:(NSAttributedString *)attributedText
-{
-    NSMutableAttributedString *mutableAttributedText = [attributedText mutableCopy];
-    [mutableAttributedText enumerateAttribute:CCHLinkAttributeName inRange:NSMakeRange(0, attributedText.length) options:0 usingBlock:^(id value, NSRange range, BOOL *stop) {
-        if (value) {
-            [mutableAttributedText addAttributes:self.linkTextAttributes range:range];
-        }
-    }];
-    
-    [super setAttributedText:mutableAttributedText];
 }
 
 - (void)enumerateViewRectsForRanges:(NSArray *)ranges usingBlock:(void (^)(CGRect rect, NSRange range, BOOL *stop))block
@@ -265,10 +254,8 @@ NSString *const CCHLinkAttributeName = @"CCHLinkAttributeName";
 - (void)didTouchDownAtLocation:(CGPoint)location
 {
     [self enumerateLinkRangesContainingLocation:location usingBlock:^(NSRange range) {
+        self.origAttributedText = self.attributedText;
         NSMutableAttributedString *attributedText = [self.attributedText mutableCopy];
-        for (NSString *attribute in self.linkTextAttributes) {
-            [attributedText removeAttribute:attribute range:range];
-        }
         [attributedText addAttributes:self.linkTextTouchAttributes range:range];
         [super setAttributedText:attributedText];
 
@@ -281,12 +268,7 @@ NSString *const CCHLinkAttributeName = @"CCHLinkAttributeName";
 - (void)didCancelTouchDownAtLocation:(CGPoint)location
 {
     [self enumerateLinkRangesContainingLocation:location usingBlock:^(NSRange range) {
-        NSMutableAttributedString *attributedText = [self.attributedText mutableCopy];
-        for (NSString *attribute in self.linkTextTouchAttributes) {
-            [attributedText removeAttribute:attribute range:range];
-        }
-        [attributedText addAttributes:self.linkTextAttributes range:range];
-        [super setAttributedText:attributedText];
+        [super setAttributedText:self.origAttributedText];
 
         self.layer.mask = nil;
     }];
