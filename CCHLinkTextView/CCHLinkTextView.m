@@ -228,7 +228,7 @@ NSString *const CCHLinkAttributeName = @"CCHLinkAttributeName";
         
         CGPoint location = [recognizer locationInView:self];
         self.touchDownLocation = location;
-        [self didTouchDownAtLocation:location];
+        // [self didTouchDownAtLocation:location];
     } else if (recognizer.state == UIGestureRecognizerStateEnded) {
         NSAssert(!CGPointEqualToPoint(self.touchDownLocation, CGPointZero), @"Invalid touch down location");
         
@@ -239,7 +239,7 @@ NSString *const CCHLinkAttributeName = @"CCHLinkAttributeName";
             [self didLongPressAtLocation:location];
         }
         
-        [self didCancelTouchDownAtLocation:location];
+        // [self didCancelTouchDownAtLocation:location];
         self.touchDownLocation = CGPointZero;
     }
 }
